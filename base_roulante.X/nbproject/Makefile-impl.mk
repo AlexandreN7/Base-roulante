@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=dsPIC33F_template.X
+PROJECTNAME=base_roulante.X
 
 # Active Configuration
 DEFAULTCONF=default

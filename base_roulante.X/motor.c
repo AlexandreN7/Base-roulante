@@ -6,6 +6,7 @@
 #include "user.h"
 #include "lib_asserv/private/tools.h"
 
+
 void Init_PWM(void)
 {
     // P1TCON
@@ -67,8 +68,8 @@ void Init_QEI(void)
     // configuration des pins A et B du module
     // ce sont des pins dites remapable,
     // ce qui veut dire que l'on peut choisir presque toutes les IO du PIC
-    RPINR14bits.QEA1R = 22; // 25 = pin RP25
-    RPINR14bits.QEB1R = 25;
+    RPINR14bits.QEA1R = 6; // 25 = pin RP25
+    RPINR14bits.QEB1R = 7;
 
 
     // module QEI2 identique = Moteur Droit
@@ -103,8 +104,8 @@ void PWM_Moteurs(float DC_gauche, float DC_droit)
     P1TPER = 1500;
 
     // limitation des Duty-Cycle
-    DC_gauche = limit_float(DC_gauche,-DC_MAX,DC_MAX);
-    DC_droit = limit_float(DC_droit,-DC_MAX,DC_MAX);
+    //DC_gauche = limit_float(DC_gauche,-DC_MAX,DC_MAX);
+    //DC_droit = limit_float(DC_droit,-DC_MAX,DC_MAX);
 
     // calcul des temps High des moteurs (cf datasheet)
     // RMQ : ici la précision est 2 fois plus grande que pour P1TPER
@@ -129,19 +130,19 @@ void PWM_Moteurs_Detail(float frequence, float DC_gauche, float DC_droit)
     MOTOR_2B_O = DC_positif;
 
     // calcul du nombre de cycles pour avoir la bonne fréquence (FCY/frequence)
-    P1TPER = (int) limit_int((long int)(FCY/frequence),P1TPER_MIN,P1TPER_MAX);
+   // P1TPER = (int) limit_int((long int)(FCY/frequence),P1TPER_MIN,P1TPER_MAX);
 
     // limitation des Duty-Cycle
-    DC_gauche = limit_float(DC_gauche,-100,100);
-    DC_droit = limit_float(DC_droit,-100,100);
+   // DC_gauche = limit_float(DC_gauche,-100,100);
+    //DC_droit = limit_float(DC_droit,-100,100);
 
     DC_gauche = 2*P1TPER*fabs(DC_gauche)/100.0;
     DC_droit = 2*P1TPER*fabs(DC_droit)/100.0;
 
     // calcul des temps High des moteurs (cf datasheet)
     // RMQ : ici la précision est 2 fois plus grande que pour P1TPER
-    P1DC1 = (int) limit_int((long int)(DC_gauche), 0, (long int)(2*P1TPER_MAX));
-    P1DC3 = (int) limit_int((long int)(DC_droit), 0,  (long int)(2*P1TPER_MAX));
+    //P1DC1 = (int) limit_int((long int)(DC_gauche), 0, (long int)(2*P1TPER_MAX));
+    //P1DC3 = (int) limit_int((long int)(DC_droit), 0,  (long int)(2*P1TPER_MAX));
 }
 
 void PWM_Moteurs_gauche(float DC)
@@ -157,7 +158,7 @@ void PWM_Moteurs_gauche(float DC)
     P1TPER = 1500;
 
     // limitation des Duty-Cycle
-    DC = limit_float(DC,-DC_MAX,DC_MAX);
+   // DC = limit_float(DC,-DC_MAX,DC_MAX);
 
     // calcul des temps High des moteurs (cf datasheet)
     // RMQ : ici la précision est 2 fois plus grande que pour P1TPER
@@ -177,7 +178,7 @@ void PWM_Moteurs_droit(float DC)
     P1TPER = 1500;
 
     // limitation des Duty-Cycle
-    DC = limit_float(DC,-DC_MAX,DC_MAX);
+  //  DC = limit_float(DC,-DC_MAX,DC_MAX);
 
     // calcul des temps High des moteurs (cf datasheet)
     // RMQ : ici la précision est 2 fois plus grande que pour P1TPER

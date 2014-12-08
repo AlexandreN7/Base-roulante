@@ -26,36 +26,31 @@
 /* User Functions                                                             */
 /******************************************************************************/
 
-void ConfigureOscillator(void)
-{
-    // Configure PLL prescaler, PLL postscaler, PLL divisor
-    PLLFBDbits.PLLDIV = 41; // M=43
-    CLKDIVbits.PLLPOST = 0; // N1=2
-    CLKDIVbits.PLLPRE  = 0; // N2=2
-    // Fosc = M/(N1.N2)*Fin
-}
 
-void InitApp(void)
-{
-    //pin de la LED en sortie
-    _TRISA0 = 0;
-    _TRISA1 = 0;
-    //Si on a un interrupteur sur la pin RB5 (par exemple), on la met en entrée
-    _TRISB5 = 1;
-    //Et on active la pullup qui va bien (registres CNPU1 et CNPU2)
-    _CN27PUE = 1;
 
-    // activation de la priorité des interruptions
-    _NSTDIS = 0;
-
-    OpenTimer23(T2_ON &
-                    T2_IDLE_CON &
-                    T2_GATE_OFF &
-                    T2_PS_1_1 &
-                    T2_SOURCE_INT, 0x01 );
-
-    ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_ON);
-}
+//void InitApp(void)
+//{
+//    //pin de la LED en sortie
+//    _TRISA0 = 0;
+//    _TRISA1 = 0;
+//    //Si on a un interrupteur sur la pin RB5 (par exemple), on la met en entrée
+//    _TRISB5 = 1;
+//    //Et on active la pullup qui va bien (registres CNPU1 et CNPU2)
+//    _CN27PUE = 1;
+//
+//    // activation de la priorité des interruptions
+//    _NSTDIS = 0;
+//
+//
+//        // activation du timer 2
+//    OpenTimer2(T2_ON &
+//                T2_IDLE_CON &
+//                T2_GATE_OFF &
+//                T2_PS_1_64 &
+//                T2_SOURCE_INT, 3125 ); // 3125 pour 5ms
+//    // configuration des interruptions
+//    ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_ON);
+//}
 /******************************************************************************/
 /* Interrupt Vector Options                                                   */
 /******************************************************************************/
@@ -123,8 +118,3 @@ void InitApp(void)
 
 /* TODO Add interrupt routine code here. */
 
-void __attribute__((interrupt, auto_psv)) _T2Interrupt(void)
-{
-    led = !led;    // On bascule l'état de la LED
-    _T2IF = 0;      // On baisse le FLAG
-}
