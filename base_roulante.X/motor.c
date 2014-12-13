@@ -4,7 +4,7 @@
 #include "motor.h"
 #include "math.h"
 #include "user.h"
-#include "lib_asserv/private/tools.h"
+//#include "lib_asserv/private/tools.h"
 
 
 void Init_PWM(void)
@@ -65,16 +65,17 @@ void Init_QEI(void)
     QEI1CONbits.POSRES = 0;     // desactive l'index => pas de reset du compteur;
     QEI1CONbits.TQCS = 0;       // use PIC clock
 
+        // Initialize IO ports and peripherals.
+  //  RPINR14bits.QEA1R = 8; // 25 = pin RP25
+  //  RPINR14bits.QEB1R = 7;
     // configuration des pins A et B du module
     // ce sont des pins dites remapable,
     // ce qui veut dire que l'on peut choisir presque toutes les IO du PIC
-    RPINR14bits.QEA1R = 6; // 25 = pin RP25
-    RPINR14bits.QEB1R = 7;
 
 
     // module QEI2 identique = Moteur Droit
     QEI2CONbits.QEISIDL = 1;    // module toujours actif, meme en etat de pause du pic
-    QEI2CONbits.QEIM = 6;       // module en mode x4 : regarde tous les fronts, reset sur index, désactivé en dessous
+    QEI2CONbits.QEIM = 5;       // module en mode x4 : regarde tous les fronts, reset sur index, désactivé en dessous
     QEI2CONbits.POSRES = 0;     // desactive l'index => pas de reset du compteur;
     QEI2CONbits.TQCS = 0;       // use PIC clock
 

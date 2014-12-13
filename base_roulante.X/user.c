@@ -43,7 +43,7 @@ void Init_All(){
    // InitTimers();
     __delay_ms(500);
     Init_PWM();
-  //  Init_QEI();
+    Init_QEI();
  //   InitSick();
    // motion_init(SendDone);
    // AtpInit();
