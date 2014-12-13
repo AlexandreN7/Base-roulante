@@ -66,12 +66,8 @@ void Init_QEI(void)
     QEI1CONbits.TQCS = 0;       // use PIC clock
 
         // Initialize IO ports and peripherals.
-  //  RPINR14bits.QEA1R = 8; // 25 = pin RP25
-  //  RPINR14bits.QEB1R = 7;
-    // configuration des pins A et B du module
-    // ce sont des pins dites remapable,
-    // ce qui veut dire que l'on peut choisir presque toutes les IO du PIC
-
+    RPINR14bits.QEA1R = 6;   
+    RPINR14bits.QEB1R = 7;
 
     // module QEI2 identique = Moteur Droit
     QEI2CONbits.QEISIDL = 1;    // module toujours actif, meme en etat de pause du pic
@@ -80,8 +76,8 @@ void Init_QEI(void)
     QEI2CONbits.TQCS = 0;       // use PIC clock
 
     // configuration des pins A et B du module
-    RPINR16bits.QEA2R = 23; // 23 = pin RP23
-    RPINR16bits.QEB2R = 24;
+    RPINR16bits.QEA2R = 8;  
+    RPINR16bits.QEB2R = 9;
 }
 
 
