@@ -20,9 +20,7 @@
 #include "motor.h"
 #include "timer.h"
 #include <uart.h>
-#include <qei.h>
-#include <pps.h>
-
+#include "asserv.h"
 /******************************************************************************/
 /* Global Variable Declaration                                                */
 /******************************************************************************/
@@ -123,11 +121,11 @@ int16_t main(void) {
 	//   PWM_Moteurs_gauche(80);
 
 	while (1) {
-		MOTOR_2A_O = 1;
-		__delay_ms(800);
-		MOTOR_2A_O = 0;
+	//	MOTOR_2A_O = 1;
+	//	__delay_ms(800);
+	//	MOTOR_2A_O = 0;
 		//    WriteUART2(100);
-		__delay_ms(800);
+	//	__delay_ms(800);
 
 	}
 }
