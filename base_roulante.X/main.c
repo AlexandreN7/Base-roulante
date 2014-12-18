@@ -57,7 +57,7 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 	volatile static int tics_g, tics_d;
 	//         // commandes gauches et droite
 	//                 // récupération des données des compteurs qei gauche et droit
-	tics_g = (int)POS1CNT
+	tics_g = (int)POS1CNT;
         tics_d = (int)POS2CNT;
 
 
@@ -81,7 +81,10 @@ void InitApp(void) {
 	_TRISA1 = 0;
 	_TRISB5 = 1;
 	_CN27PUE = 1;
-
+        MOTOR_1A_TRIS = 0;
+        MOTOR_1B_TRIS = 0;
+        MOTOR_2A_TRIS = 0;
+        MOTOR_2B_TRIS = 0;
 	// activation de la priorité des interruptions
 	_NSTDIS = 0;
 
@@ -119,13 +122,25 @@ int16_t main(void) {
 	InitApp();
 	DFLT1CONbits.QECK = 5;
 
-	//    PWM_Moteurs_droit(20);
-	//   PWM_Moteurs_gauche(80);
+	    PWM_Moteurs_droit(80);
+	    PWM_Moteurs_gauche(80);
+
+            MOTOR_1A_O = 1;
+            MOTOR_1B_O = 0;
+            MOTOR_2B_O = 1;
+            MOTOR_2A_O = 0;
+
+
+
 
 	while (1) {
-		MOTOR_2A_O = 1;
+
+              //  MOTOR_2B_O = 1;
+
 		__delay_ms(800);
-		MOTOR_2A_O = 0;
+               // MOTOR_2B_O = 0;
+		//MOTOR_2A_O = 0;
+
 		//    WriteUART2(100);
 		__delay_ms(800);
 
