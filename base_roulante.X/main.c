@@ -58,7 +58,6 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 	tics_g = (int)POS1CNT;
         tics_d = (int)POS2CNT;
 
-
 	_T2IF = 0; // On baisse le FLAG
 }
 
@@ -67,7 +66,16 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
  *************************************************/
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
 	_U2RXIF = 0; // On baisse le FLAG
-	led = !led;
+        if(U2RXREG=='a') {
+            PWM_Moteurs_droit(80);
+            PWM_Moteurs_gauche(80);
+            led = !led;
+        }
+        else if (U2RXREG=='b') {
+            PWM_Moteurs_droit(0);
+            PWM_Moteurs_gauche(0);
+            led = !led;            
+        }
 }
 
 void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
@@ -108,30 +116,33 @@ void InitApp(void) {
 	// configuration des interruptions
 	ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_ON);
 
-	/////////////////////////////////UART///////////////////////////
-	_U2RXR = 31;
-	_RP5R = 5; // RP25 = U2TX (p.167)
+	/////////////////////////////////UART///////////////////////
+        //RPINR14bits.
+	_U2RXR = 5;
+	//_RP5R = 4; // RP25 = U2TX (p.167)
 	////////////////////////////////////////////////////////////
 }
 
 int16_t main(void) {
 
+    //char test[50]="test";
 	Init_All();
 	InitApp();
 	DFLT1CONbits.QECK = 5;
 
-	    PWM_Moteurs_droit(80);
-	    PWM_Moteurs_gauche(80);
+
 
             MOTOR_1A_O = 1;
             MOTOR_1B_O = 0;
             MOTOR_2B_O = 1;
             MOTOR_2A_O = 0;
-
+            PWM_Moteurs_droit(0);
+	    PWM_Moteurs_gauche(0);
 
 
 
 	while (1) {
+            U2TXREG = 'a';
 	}
 }
 
