@@ -29,7 +29,7 @@
 
 
 /******************************************************************************/
-/* Configuartion                                                              */
+/* Configuartion               s                                               */
 /******************************************************************************/
 
 // Select Oscillator and switching.
@@ -46,8 +46,11 @@ _FICD(ICS_PGD1 & JTAGEN_OFF);
 /* Main Program                                                               */
 
 /******************************************************************************/
-long state = 0;
+
 long old_state = 0;
+int pwm1 = 20, pwm2 = 20;
+int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
+
 
 void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 
@@ -66,17 +69,58 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
  *************************************************/
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
 	_U2RXIF = 0; // On baisse le FLAG
-        if(U2RXREG=='a') {
-            PWM_Moteurs_droit(80);
-            PWM_Moteurs_gauche(80);
-            led = !led;
+        if(U2RXREG=='z') {
+            if (state == 1) {
+                state = 0;
+            }
+            else {
+                state = 1;
+            }
         }
-        else if (U2RXREG=='b') {
-            PWM_Moteurs_droit(0);
-            PWM_Moteurs_gauche(0);
-            led = !led;            
+        else if (U2RXREG=='s') {
+            if (state == 2) {
+                state = 0;
+            }
+            else {
+                state = 2;
+            }
         }
-}
+        else if (U2RXREG=='q') {
+            if (state == 3) {
+                state = 0;
+            }
+            else {
+                state = 3;
+            }
+        }
+        else if (U2RXREG=='d') {
+            if (state == 4) {
+                state = 0;
+            }
+            else {
+                state = 4;   
+            }
+        }
+        else if (U2RXREG == 't') {
+            if(pwm1 <= 100){
+            pwm1=pwm1+10;
+            pwm2=pwm2+10;
+            }
+            state = 0;
+        }
+        else if (U2RXREG == 'g') {
+            if(pwm1>=0) {
+            pwm1=pwm1-10;
+            pwm2=pwm2-10;
+            }
+           state = 0;
+        }
+
+        else {
+            state = 0;
+        }
+        }
+
 
 void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
 	_U2TXIF = 0; // clear TX interrupt flag
@@ -132,17 +176,38 @@ int16_t main(void) {
 
 
 
-            MOTOR_1A_O = 1;
-            MOTOR_1B_O = 0;
-            MOTOR_2B_O = 1;
-            MOTOR_2A_O = 0;
-            PWM_Moteurs_droit(0);
-	    PWM_Moteurs_gauche(0);
+            PWM_Moteurs_droit(60);
+	    PWM_Moteurs_gauche(-10);
 
 
 
-	while (1) {
-            U2TXREG = 'a';
+	while (1) {/*
+            switch(state)
+            {
+                case 0 :
+                    PWM_Moteurs_droit(0);
+                    PWM_Moteurs_gauche(0);
+                    break;
+                case 1 :
+  
+                    PWM_Moteurs_droit(-pwm1); //marche avant
+                    PWM_Moteurs_gauche(-pwm1);
+                    break;
+                case 2 :
+
+                    PWM_Moteurs_droit(pwm1);
+                    PWM_Moteurs_gauche(pwm1);
+                    break;
+                case 3 :
+                    PWM_Moteurs_droit(pwm1);
+                    PWM_Moteurs_gauche(0);
+                    break;
+                case 4 :
+                    PWM_Moteurs_droit(0);
+                    PWM_Moteurs_gauche(pwm1);
+                    break;    
+            }*/
+
 	}
 }
 
