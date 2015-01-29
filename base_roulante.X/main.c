@@ -19,6 +19,7 @@
 #include <libpic30.h>
 #include "motor.h"
 #include "timer.h"
+#include "asserv.h"
 #include <uart.h>
 //#include "asserv.h"
 /******************************************************************************/
@@ -50,15 +51,25 @@ _FICD(ICS_PGD1 & JTAGEN_OFF);
 long old_state = 0;
 int pwm1 = 60, pwm2 = 60;
 int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
+float diffg = 0,diffd =0;
+float oldtics_g = 0 , oldtics_d = 0;
+
+
+
 
 void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 
     // compteurs QEI gauche et droit
-    volatile static int tics_g, tics_d;
+    volatile static unsigned int tics_g, tics_d;
     //         // commandes gauches et droite
     //                 // récupération des données des compteurs qei gauche et droit
-    tics_g = (int) POS1CNT;
-    tics_d = (int) POS2CNT;
+    tics_d = (int) POS1CNT;
+    tics_g = (int) POS2CNT;
+
+    diffg = tics_g;
+    diffd = tics_d;
+    POS1CNT=0;
+    POS2CNT=0;
 
     _T2IF = 0; // On baisse le FLAG
 }
@@ -138,7 +149,7 @@ void InitApp(void) {
             T2_PS_1_64 &
             T2_SOURCE_INT, 3125); // 3125 pour 5ms
     // configuration des interruptions
-    ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_OFF);
+    ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_ON);
 
     /////////////////////////////////UART///////////////////////
     //RPINR14bits.
@@ -162,32 +173,10 @@ int16_t main(void) {
 
 
     while (1) {
-        switch (state) {
-            case 0:
-                PWM_Moteurs_droit(0);
-                PWM_Moteurs_gauche(0);
-                break;
-            case 1:
-
-                PWM_Moteurs_droit(-pwm1); //marche avant
-                PWM_Moteurs_gauche(-pwm1);
-                break;
-            case 2:
-
-                PWM_Moteurs_droit(pwm1/2.);
-                PWM_Moteurs_gauche(pwm1/2.);
-                break;
-            case 3:
-                PWM_Moteurs_droit(pwm1/2.);
-                PWM_Moteurs_gauche(-pwm1/2.);
-                break;
-            case 4:
-                PWM_Moteurs_droit(-pwm1);
-                PWM_Moteurs_gauche(pwm1);
-                break;
-        }
-    }
+        routine (diffg,diffd,0.05,0.05);
+    
     for (i = 0; i > 200; i++) {
+         }
     }
 }
 
