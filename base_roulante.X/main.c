@@ -48,166 +48,146 @@ _FICD(ICS_PGD1 & JTAGEN_OFF);
 /******************************************************************************/
 
 long old_state = 0;
-int pwm1 = 20, pwm2 = 20;
+int pwm1 = 60, pwm2 = 60;
 int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
-
 
 void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 
-	// compteurs QEI gauche et droit
-	volatile static int tics_g, tics_d;
-	//         // commandes gauches et droite
-	//                 // récupération des données des compteurs qei gauche et droit
-	tics_g = (int)POS1CNT;
-        tics_d = (int)POS2CNT;
+    // compteurs QEI gauche et droit
+    volatile static int tics_g, tics_d;
+    //         // commandes gauches et droite
+    //                 // récupération des données des compteurs qei gauche et droit
+    tics_g = (int) POS1CNT;
+    tics_d = (int) POS2CNT;
 
-	_T2IF = 0; // On baisse le FLAG
+    _T2IF = 0; // On baisse le FLAG
 }
 
 /*****************************POS1CNT********************
  * TX et RX Interrupt *
  *************************************************/
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
-	_U2RXIF = 0; // On baisse le FLAG
-        if(U2RXREG=='z') {
-            if (state == 1) {
-                state = 0;
-            }
-            else {
-                state = 1;
-            }
-        }
-        else if (U2RXREG=='s') {
-            if (state == 2) {
-                state = 0;
-            }
-            else {
-                state = 2;
-            }
-        }
-        else if (U2RXREG=='q') {
-            if (state == 3) {
-                state = 0;
-            }
-            else {
-                state = 3;
-            }
-        }
-        else if (U2RXREG=='d') {
-            if (state == 4) {
-                state = 0;
-            }
-            else {
-                state = 4;   
-            }
-        }
-        else if (U2RXREG == 't') {
-            if(pwm1 <= 100){
-            pwm1=pwm1+10;
-            pwm2=pwm2+10;
-            }
-            state = 0;
-        }
-        else if (U2RXREG == 'g') {
-            if(pwm1>=0) {
-            pwm1=pwm1-10;
-            pwm2=pwm2-10;
-            }
-           state = 0;
-        }
+    _U2RXIF = 0; // On baisse le FLAG
+    char test = ReadUART2();
+    if (test == 'z') {
 
-        else {
-            state = 0;
-        }
-        }
+        state = 1;
+    } else if (test == 's') {
 
+        state = 2;
+    } else if (test == 'q') {
+
+        state = 3;
+
+    } else if (test == 'd') {
+
+        state = 4;
+
+    } else if (test== 't') {
+        if (pwm1 <= 100) {
+            pwm1 = pwm1 + 10;
+            pwm2 = pwm2 + 10;
+        }
+    } else if (test == 'g') {
+        if (pwm1 >= 0) {
+            pwm1 = pwm1 - 10;
+            pwm2 = pwm2 - 10;
+        }
+    }
+     else {
+
+        state =0;
+
+     
+    }
+}
 
 void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
-	_U2TXIF = 0; // clear TX interrupt flag
+    _U2TXIF = 0; // clear TX interrupt flag
 }
 
 void InitApp(void) {
-	_TRISA0 = 0;
-	_TRISA1 = 0;
-	_TRISB5 = 1;
-	_CN27PUE = 1;
-        MOTOR_1A_TRIS = 0;
-        MOTOR_1B_TRIS = 0;
-        MOTOR_2A_TRIS = 0;
-        MOTOR_2B_TRIS = 0;
-	// activation de la priorité des interruptions
-	_NSTDIS = 0;
+    _TRISA0 = 0;
+    _TRISA1 = 0;
+    _TRISB5 = 1;
+    _CN27PUE = 1;
+    MOTOR_1A_TRIS = 0;
+    MOTOR_1B_TRIS = 0;
+    MOTOR_2A_TRIS = 0;
+    MOTOR_2B_TRIS = 0;
+    // activation de la priorité des interruptions
+    _NSTDIS = 0;
 
-	OpenUART2(UART_EN & UART_IDLE_CON & UART_IrDA_DISABLE & UART_MODE_FLOW
-			& UART_UEN_00 & UART_DIS_WAKE & UART_DIS_LOOPBACK
-			& UART_DIS_ABAUD & UART_UXRX_IDLE_ONE & UART_BRGH_SIXTEEN
-			& UART_NO_PAR_8BIT & UART_1STOPBIT,
-			UART_INT_TX_BUF_EMPTY & UART_IrDA_POL_INV_ZERO
-			& UART_SYNC_BREAK_DISABLED & UART_TX_ENABLE & UART_TX_BUF_NOT_FUL & UART_INT_RX_CHAR
-			& UART_ADR_DETECT_DIS & UART_RX_OVERRUN_CLEAR,
-			BRGVALAX12);
+    OpenUART2(UART_EN & UART_IDLE_CON & UART_IrDA_DISABLE & UART_MODE_FLOW
+            & UART_UEN_00 & UART_DIS_WAKE & UART_DIS_LOOPBACK
+            & UART_DIS_ABAUD & UART_UXRX_IDLE_ONE & UART_BRGH_SIXTEEN
+            & UART_NO_PAR_8BIT & UART_1STOPBIT,
+            UART_INT_TX_BUF_EMPTY & UART_IrDA_POL_INV_ZERO
+            & UART_SYNC_BREAK_DISABLED & UART_TX_ENABLE & UART_TX_BUF_NOT_FUL & UART_INT_RX_CHAR
+            & UART_ADR_DETECT_DIS & UART_RX_OVERRUN_CLEAR,
+            BRGVALAX12);
 
-	ConfigIntUART2(UART_RX_INT_PR4 & UART_RX_INT_EN
-			& UART_TX_INT_PR5 & UART_TX_INT_DIS);
+    ConfigIntUART2(UART_RX_INT_PR5 & UART_RX_INT_EN
+            & UART_TX_INT_PR5 & UART_TX_INT_DIS);
 
 
-	// activation du timer 2
-	OpenTimer2(T2_ON &
-			T2_IDLE_CON &
-			T2_GATE_OFF &
-			T2_PS_1_64 &
-			T2_SOURCE_INT, 3125); // 3125 pour 5ms
-	// configuration des interruptions
-	ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_ON);
+    // activation du timer 2
+    OpenTimer2(T2_ON &
+            T2_IDLE_CON &
+            T2_GATE_OFF &
+            T2_PS_1_64 &
+            T2_SOURCE_INT, 3125); // 3125 pour 5ms
+    // configuration des interruptions
+    ConfigIntTimer2(T2_INT_PRIOR_4 & T2_INT_OFF);
 
-	/////////////////////////////////UART///////////////////////
-        //RPINR14bits.
-	_U2RXR = 5;
-	//_RP5R = 4; // RP25 = U2TX (p.167)
-	////////////////////////////////////////////////////////////
+    /////////////////////////////////UART///////////////////////
+    //RPINR14bits.
+    _U2RXR = 5;
+    //_RP5R = 4; // RP25 = U2TX (p.167)
+    ////////////////////////////////////////////////////////////
 }
 
 int16_t main(void) {
 
     //char test[50]="test";
-	Init_All();
-	InitApp();
-	DFLT1CONbits.QECK = 5;
+    Init_All();
+    InitApp();
+    DFLT1CONbits.QECK = 5;
+
+    long i = 0;
+
+    //PWM_Moteurs_droit(60);
+    //PWM_Moteurs_gauche(-10);
 
 
 
-            PWM_Moteurs_droit(60);
-	    PWM_Moteurs_gauche(-10);
+    while (1) {
+        switch (state) {
+            case 0:
+                PWM_Moteurs_droit(0);
+                PWM_Moteurs_gauche(0);
+                break;
+            case 1:
 
+                PWM_Moteurs_droit(-pwm1); //marche avant
+                PWM_Moteurs_gauche(-pwm1);
+                break;
+            case 2:
 
-
-	while (1) {/*
-            switch(state)
-            {
-                case 0 :
-                    PWM_Moteurs_droit(0);
-                    PWM_Moteurs_gauche(0);
-                    break;
-                case 1 :
-  
-                    PWM_Moteurs_droit(-pwm1); //marche avant
-                    PWM_Moteurs_gauche(-pwm1);
-                    break;
-                case 2 :
-
-                    PWM_Moteurs_droit(pwm1);
-                    PWM_Moteurs_gauche(pwm1);
-                    break;
-                case 3 :
-                    PWM_Moteurs_droit(pwm1);
-                    PWM_Moteurs_gauche(0);
-                    break;
-                case 4 :
-                    PWM_Moteurs_droit(0);
-                    PWM_Moteurs_gauche(pwm1);
-                    break;    
-            }*/
-
-	}
+                PWM_Moteurs_droit(pwm1/2.);
+                PWM_Moteurs_gauche(pwm1/2.);
+                break;
+            case 3:
+                PWM_Moteurs_droit(pwm1/2.);
+                PWM_Moteurs_gauche(-pwm1/2.);
+                break;
+            case 4:
+                PWM_Moteurs_droit(-pwm1);
+                PWM_Moteurs_gauche(pwm1);
+                break;
+        }
+    }
+    for (i = 0; i > 200; i++) {
+    }
 }
 
