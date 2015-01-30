@@ -3,10 +3,14 @@
 #include <math.h>
 
 //////////////////////////////////COEFFICIENTS////////////////////////////////
-float kd=0;
-float ki=0;
-float kp=0;
+float kp_d = 10;
+float kp_g = 10;
 
+float ki_d = 10;
+float ki_g = 10;
+
+float kd_d = 0;
+float kd_g = 0;
 //////////////////////////////////PHYSIQUE////////////////////////////////////
 float p_x=0;
 float p_y=0;
@@ -14,17 +18,15 @@ float angle=0;
 float v_x=0;
 float v_y=0;
 
-/////////////////////////////////POSITION_REF////////////////////////////////
-float p_xref =0; // on place le robot Ã  la position (0,0)
-float p_yref =0;
 
-float v_xref =0; // la vitesse d'origine est fixÃ© Ã  0
-float v_yref =0;
-
-float angle_ref =0; // l'angle de base est Ã  0;
-
-float cmdd =0;
+float cmdd =0; // COMMANDE D/G
 float cmdg =0;
+
+float int_erreur_d = 0; // SOMME DES ERREURS
+float int_erreur_g = 0;
+
+float detla_erreur_d = 0; // DIFF2RENCE DES ERREURS
+float detla_erreur_g  = 0;
 
 
 float distance(float consigne) // renvoit la distance parcourue 
@@ -41,19 +43,39 @@ void set_position(float x,float y)
 
 }
 
-void routine (int diffg,int diffd, float vitessed , float vitesseg)
+void routine (int diffg, int diffd)
 {
-    float kd_d = 5;
-    float kd_g = 5;
     float vitesseMesure_g = 2*PI*Rg/resolution*diffg*Fe;
     float vitesseMesure_d = 2*PI*Rd/resolution*diffd*Fe;
-    float er_g = kd_g*(vitesseg-vitesseMesure_g)*100/V_MAX;
-    float er_d = kd_d*(vitessed-vitesseMesure_d)*100/V_MAX;
 
+    float erreur_g = cmdg-vitesseMesure_g;
+    float erreur_d = cmdd-vitesseMesure_d;
 
-    cmdd = cmdd + er_d;
-    cmdg = cmdg + er_g;    
-    PWM_Moteurs_droit(kd_d*(vitessed-vitesseMesure_d)*100/V_MAX);
-    PWM_Moteurs_gauche(kd_g*(vitesseg-vitesseMesure_g)*100/V_MAX);
     
+    int_erreur_g=int_erreur_g+erreur_g; // on somme les erreurs pour le coefficient intégrateur
+    int_erreur_d=int_erreur_d+erreur_d;
+
+    detla_erreur_g =erreur_g-detla_erreur_g; // différences les erreurs pour le dérivateur
+    detla_erreur_d =erreur_d-detla_erreur_d ;
+
+    float correction_d = kp_d*erreur_d +ki_d*int_erreur_d-kd_d*detla_erreur_d;
+    float correction_g = kp_g*erreur_g +ki_g*int_erreur_g-kd_g*detla_erreur_g;
+
+    //cmdd = cmdd + correction_d*100/V_MAX;
+    //cmdg = cmdg + correction_g*100/V_MAX;
+    PWM_Moteurs_droit(100-correction_d);
+    PWM_Moteurs_gauche(100-correction_g);
+}
+
+
+void motion_speed(float vitessed , float vitesseg) // envoit d'une nouvelle vitesse
+{
+    cmdd = vitessed;
+    cmdg = vitesseg;
+
+    detla_erreur_g=0;
+    detla_erreur_d=0;
+
+    int_erreur_d=0;
+    int_erreur_g=0;
 }

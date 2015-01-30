@@ -71,7 +71,7 @@ void Init_QEI(void)
 
     // module QEI2 identique = Moteur Droit
     QEI2CONbits.QEISIDL = 1;    // module toujours actif, meme en etat de pause du pic
-    QEI2CONbits.QEIM = 5;       // module en mode x4 : regarde tous les fronts, reset sur index, désactivé en dessous
+    QEI2CONbits.QEIM = 6;       // module en mode x4 : regarde tous les fronts, reset sur index, désactivé en dessous
     QEI2CONbits.POSRES = 0;     // desactive l'index => pas de reset du compteur;
     QEI2CONbits.TQCS = 0;       // use PIC clock
 

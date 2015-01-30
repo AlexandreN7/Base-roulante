@@ -47,12 +47,14 @@ _FICD(ICS_PGD1 & JTAGEN_OFF);
 /* Main Program                                                               */
 
 /******************************************************************************/
-
+/////////////////////////////////Variables globales////////////////////////////
 long old_state = 0;
 int pwm1 = 0, pwm2 = 0;
 int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
 int diffg = 0,diffd =0;
 unsigned int oldtics_g = 0 , oldtics_d = 0;
+char data[6]={0};
+////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -72,6 +74,8 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
     oldtics_g=tics_g;
     oldtics_d=tics_d;
 
+    routine (-diffg,-diffd); // routine d'asservissement
+
     _T2IF = 0; // On baisse le FLAG
 }
 
@@ -80,39 +84,24 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
  *************************************************/
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     _U2RXIF = 0; // On baisse le FLAG
-    char test = ReadUART2();
-    if (test == 'z') {
-
-        state = 1;
-    } else if (test == 's') {
-
-        state = 2;
-    } else if (test == 'q') {
-
-        state = 3;
-
-    } else if (test == 'd') {
-
-        state = 4;
-
-    } else if (test== 't') {
-        if (pwm1 <= 100) {
-            pwm1 = pwm1 + 10;
-            pwm2 = pwm2 + 10;
-        }
-    } else if (test == 'g') {
-        if (pwm1 >= 0) {
-            pwm1 = pwm1 - 10;
-            pwm2 = pwm2 - 10;
-        }
+    int i =0, numflag = 0;
+    char input = 0;
+    int cmd1=0,cmd2=0;
+    input = ReadUART2();
+    for (i=0;i<6;i++){
+        data[i]=0;
     }
-     else {
+    if (input == 'X') {
+        while(input != 'Y') {
+          input = ReadUART2();
+          data[i]=input;
+          numflag =1;
+          i++;
+        }
 
-        state =0;
-
-     
     }
-}
+    }
+
 
 void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
     _U2TXIF = 0; // clear TX interrupt flag
@@ -155,7 +144,7 @@ void InitApp(void) {
     /////////////////////////////////UART///////////////////////
     //RPINR14bits.
     _U2RXR = 5;
-    //_RP5R = 4; // RP25 = U2TX (p.167)
+   // _RP5R = 5; // RP25 = U2TX (p.167)
     ////////////////////////////////////////////////////////////
 }
 
@@ -170,9 +159,11 @@ int16_t main(void) {
 
     //PWM_Moteurs_droit(60);
     //PWM_Moteurs_gauche(-10);
-
+    
     while (1) {
-        routine (diffg,diffd,-0.1,0.1);
+        motion_speed(0.1,0.1);
+        for( i=0; i<1000;i++) {}
+
     }
 }
 

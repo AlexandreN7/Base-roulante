@@ -9,9 +9,13 @@
 #define V_MAX 0.5 // on fixe la vitesse max
 #define Fe 200 // fréquence d'échantillonage
 
+extern float cmdd ;
+extern float cmdg ;
+
 
 float distance(float); // calcul de la distance parcourue  en fontion du nombre de tic observÃ©
 
 void set_position(float,float); // demande au robot de se placer une position
-void routine(int,int,float,float); // routine d'asservisement
+void routine(int,int); // routine d'asservisement
+void motion_speed(float,float);
 #endif	/* ASSERV */
