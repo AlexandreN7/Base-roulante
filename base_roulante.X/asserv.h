@@ -4,14 +4,14 @@
 #define PI 3.141592
 #define resolution 1024 // nombre de tic pour un tour
 #define DC_MAX 100
-#define Rg 57.5
-#define Rd 57.5
-#define V_MAX 0.05 // on fixe la vitesse max
-#define Fe 0.005 // fréquence d'échantillonage
+#define Rg 0.02888
+#define Rd 0.02888
+#define V_MAX 0.5 // on fixe la vitesse max
+#define Fe 200 // fréquence d'échantillonage
 
 
 float distance(float); // calcul de la distance parcourue  en fontion du nombre de tic observÃ©
 
 void set_position(float,float); // demande au robot de se placer une position
-void routine(float, float,float,float); // routine d'asservisement
+void routine(int,int,float,float); // routine d'asservisement
 #endif	/* ASSERV */

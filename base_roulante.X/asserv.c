@@ -23,6 +23,8 @@ float v_yref =0;
 
 float angle_ref =0; // l'angle de base est à 0;
 
+float cmdd =0;
+float cmdg =0;
 
 
 float distance(float consigne) // renvoit la distance parcourue 
@@ -39,18 +41,19 @@ void set_position(float x,float y)
 
 }
 
-void routine (float diffg, float diffd, float vitessed , float vitesseg)
+void routine (int diffg,int diffd, float vitessed , float vitesseg)
 {
-    float kd_d = 2;
-    float kd_g = 2;
+    float kd_d = 5;
+    float kd_g = 5;
     float vitesseMesure_g = 2*PI*Rg/resolution*diffg*Fe;
     float vitesseMesure_d = 2*PI*Rd/resolution*diffd*Fe;
-    float er_g = kd_g*fabs(vitesseMesure_g-vitesseg);
-    float er_d = kd_d*fabs(vitesseMesure_d-vitessed);
+    float er_g = kd_g*(vitesseg-vitesseMesure_g)*100/V_MAX;
+    float er_d = kd_d*(vitessed-vitesseMesure_d)*100/V_MAX;
 
 
-
-    PWM_Moteurs_droit((vitessed-er_d)/V_MAX*100);
-    PWM_Moteurs_gauche((vitesseg-er_g)/V_MAX*100);
+    cmdd = cmdd + er_d;
+    cmdg = cmdg + er_g;    
+    PWM_Moteurs_droit(kd_d*(vitessed-vitesseMesure_d)*100/V_MAX);
+    PWM_Moteurs_gauche(kd_g*(vitesseg-vitesseMesure_g)*100/V_MAX);
     
 }

@@ -49,10 +49,10 @@ _FICD(ICS_PGD1 & JTAGEN_OFF);
 /******************************************************************************/
 
 long old_state = 0;
-int pwm1 = 60, pwm2 = 60;
+int pwm1 = 0, pwm2 = 0;
 int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
-float diffg = 0,diffd =0;
-float oldtics_g = 0 , oldtics_d = 0;
+int diffg = 0,diffd =0;
+unsigned int oldtics_g = 0 , oldtics_d = 0;
 
 
 
@@ -66,10 +66,11 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
     tics_d = (int) POS1CNT;
     tics_g = (int) POS2CNT;
 
-    diffg = tics_g;
-    diffd = tics_d;
-    POS1CNT=0;
-    POS2CNT=0;
+    diffg = tics_g-oldtics_g;
+    diffd = tics_d-oldtics_d;
+
+    oldtics_g=tics_g;
+    oldtics_d=tics_d;
 
     _T2IF = 0; // On baisse le FLAG
 }
@@ -170,13 +171,8 @@ int16_t main(void) {
     //PWM_Moteurs_droit(60);
     //PWM_Moteurs_gauche(-10);
 
-
-
     while (1) {
-        routine (diffg,diffd,0.05,0.05);
-    
-    for (i = 0; i > 200; i++) {
-         }
+        routine (diffg,diffd,-0.1,0.1);
     }
 }
 
