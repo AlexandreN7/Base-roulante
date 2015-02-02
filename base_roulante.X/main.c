@@ -74,7 +74,7 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
     oldtics_g=tics_g;
     oldtics_d=tics_d;
 
-    routine (-diffg,-diffd); // routine d'asservissement
+    routine(-diffg,-diffd); // routine d'asservissement
 
     _T2IF = 0; // On baisse le FLAG
 }
@@ -161,9 +161,8 @@ int16_t main(void) {
     //PWM_Moteurs_gauche(-10);
     
     while (1) {
-        motion_speed(0.1,0.1);
-        for( i=0; i<1000;i++) {}
-
+        motion_speed(0.2,0);
+        for( i=0; i<10000;i++) {}
     }
 }
 

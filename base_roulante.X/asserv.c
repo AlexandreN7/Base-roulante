@@ -3,11 +3,11 @@
 #include <math.h>
 
 //////////////////////////////////COEFFICIENTS////////////////////////////////
-float kp_d = 10;
-float kp_g = 10;
+float kp_d = 1;
+float kp_g = 1;
 
-float ki_d = 10;
-float ki_g = 10;
+float ki_d = 0;
+float ki_g = 0;
 
 float kd_d = 0;
 float kd_g = 0;
@@ -63,8 +63,21 @@ void routine (int diffg, int diffd)
 
     //cmdd = cmdd + correction_d*100/V_MAX;
     //cmdg = cmdg + correction_g*100/V_MAX;
-    PWM_Moteurs_droit(100-correction_d);
-    PWM_Moteurs_gauche(100-correction_g);
+   /* if (correction_d> 100)
+    {
+        PWM_Moteurs_droit(100);
+        PWM_Moteurs_gauche(100);
+    }
+    else if (correction_d< -100)
+    {
+        PWM_Moteurs_droit(-100);
+        PWM_Moteurs_gauche(-100);
+
+    }
+    else {*/
+        PWM_Moteurs_droit(correction_d);
+        PWM_Moteurs_gauche(correction_g);
+  //  }
 }
 
 
