@@ -3,8 +3,8 @@
 #include <math.h>
 
 //////////////////////////////////COEFFICIENTS////////////////////////////////
-float kp_d = 1;
-float kp_g = 1;
+float kp_d = 100;
+float kp_g = 100;
 
 float ki_d = 0;
 float ki_g = 0;
@@ -75,8 +75,8 @@ void routine (int diffg, int diffd)
 
     }
     else {*/
-        PWM_Moteurs_droit(correction_d);
-        PWM_Moteurs_gauche(correction_g);
+        PWM_Moteurs_droit(-correction_d);
+        PWM_Moteurs_gauche(-correction_g);
   //  }
 }
 

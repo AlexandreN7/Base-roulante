@@ -161,7 +161,7 @@ int16_t main(void) {
     //PWM_Moteurs_gauche(-10);
     
     while (1) {
-        motion_speed(0.2,0);
+        motion_speed(2,2);
         for( i=0; i<10000;i++) {}
     }
 }

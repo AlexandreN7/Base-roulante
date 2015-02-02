@@ -5,7 +5,7 @@
 #define resolution 1024 // nombre de tic pour un tour
 #define DC_MAX 100
 #define Rg 0.02888
-#define Rd 0.02888
+#define Rd 0.0257
 #define V_MAX 0.5 // on fixe la vitesse max
 #define Fe 200 // fréquence d'échantillonage
 
