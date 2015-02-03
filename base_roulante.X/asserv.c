@@ -6,8 +6,8 @@
 float kp_d = 100;
 float kp_g = 100;
 
-float ki_d = 0;
-float ki_g = 0;
+float ki_d = 100;
+float ki_g = 100;
 
 float kd_d = 0;
 float kd_g = 0;
@@ -63,7 +63,7 @@ void routine (int diffg, int diffd)
 
     //cmdd = cmdd + correction_d*100/V_MAX;
     //cmdg = cmdg + correction_g*100/V_MAX;
-   /* if (correction_d> 100)
+    if (correction_d> 100)
     {
         PWM_Moteurs_droit(100);
         PWM_Moteurs_gauche(100);
@@ -74,10 +74,10 @@ void routine (int diffg, int diffd)
         PWM_Moteurs_gauche(-100);
 
     }
-    else {*/
+    else {
         PWM_Moteurs_droit(-correction_d);
         PWM_Moteurs_gauche(-correction_g);
-  //  }
+   }
 }
 
 

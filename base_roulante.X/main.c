@@ -21,6 +21,7 @@
 #include "timer.h"
 #include "asserv.h"
 #include <uart.h>
+#include <stdlib.h> // contient le prototype de atoi
 //#include "asserv.h"
 /******************************************************************************/
 /* Global Variable Declaration                                                */
@@ -51,14 +52,20 @@ _FICD(ICS_PGD1 & JTAGEN_OFF);
 long old_state = 0;
 int pwm1 = 0, pwm2 = 0;
 int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
-int diffg = 0,diffd =0;
-unsigned int oldtics_g = 0 , oldtics_d = 0;
-char data[6]={0};
+int diffg = 0, diffd = 0;
+unsigned int oldtics_g = 0, oldtics_d = 0;
+char buffer[50] = {0};
+char data1[3] = {0};
+char data2[3] = {0};
+int done = 0;
+int begin =0;
+int compteur = 0;
+int cmd1 = 100, cmd2 = 100;
 ////////////////////////////////////////////////////////////////////////////////
 
 
 
-
+///////////////////////////////////INTERRUPTION////////////////////////////////
 void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 
     // compteurs QEI gauche et droit
@@ -68,13 +75,13 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
     tics_d = (int) POS1CNT;
     tics_g = (int) POS2CNT;
 
-    diffg = tics_g-oldtics_g;
-    diffd = tics_d-oldtics_d;
+    diffg = tics_g - oldtics_g;
+    diffd = tics_d - oldtics_d;
 
-    oldtics_g=tics_g;
-    oldtics_d=tics_d;
+    oldtics_g = tics_g;
+    oldtics_d = tics_d;
 
-    routine(-diffg,-diffd); // routine d'asservissement
+    routine(-diffg, -diffd); // routine d'asservissement
 
     _T2IF = 0; // On baisse le FLAG
 }
@@ -84,27 +91,46 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
  *************************************************/
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     _U2RXIF = 0; // On baisse le FLAG
-    int i =0, numflag = 0;
     char input = 0;
-    int cmd1=0,cmd2=0;
-    input = ReadUART2();
-    for (i=0;i<6;i++){
-        data[i]=0;
+    int u = 0;
+    input = ReadUART2(); // lecture UART
+
+    if (input == 'X') {// début de la trame
+        begin = 1;
     }
-    if (input == 'X') {
-        while(input != 'Y') {
-          input = ReadUART2();
-          data[i]=input;
-          numflag =1;
-          i++;
+    else if ( input =='$') { // fin de la trame
+        compteur=0;
+        begin = 0;
+        done = 1;
+
+        for (u=0;u<25; u++ ) {
+            buffer[u]=0;
         }
-
-    }
     }
 
+    if (begin  == 1 ) {
+        buffer[compteur]=input;
+        compteur=compteur+1;
+    }
+}
 
 void __attribute__((__interrupt__, no_auto_psv)) _U2TXInterrupt(void) {
     _U2TXIF = 0; // clear TX interrupt flag
+}
+//////////////////////////////////////////////////////////////////////////////////
+
+void traitement_uart(void) {
+    int u = 0;
+
+    for ( u=0 ; u<3 ; u++ ) {
+        data1[u]=  buffer[u+1];
+    }
+
+    for ( u=0 ; u<3 ; u++ ) {
+        data2[u]=  buffer[u+4];
+    }
+    cmd1 = atoi(data1);
+    cmd2 = atoi(data2);
 }
 
 void InitApp(void) {
@@ -144,7 +170,7 @@ void InitApp(void) {
     /////////////////////////////////UART///////////////////////
     //RPINR14bits.
     _U2RXR = 5;
-   // _RP5R = 5; // RP25 = U2TX (p.167)
+    // _RP5R = 5; // RP25 = U2TX (p.167)
     ////////////////////////////////////////////////////////////
 }
 
@@ -157,12 +183,11 @@ int16_t main(void) {
 
     long i = 0;
 
-    //PWM_Moteurs_droit(60);
-    //PWM_Moteurs_gauche(-10);
-    
     while (1) {
-        motion_speed(2,2);
-        for( i=0; i<10000;i++) {}
+        motion_speed(cmd1 / 100 - 1, cmd2 / 100 - 1);
+        traitement_uart();
+        for (i = 0; i < 100; i++) {
+        }
     }
 }
 
