@@ -54,13 +54,13 @@ int pwm1 = 0, pwm2 = 0;
 int state = 0; // 0arret , 1 avant, 2 recule, 3 gauche , 4 droite
 int diffg = 0, diffd = 0;
 unsigned int oldtics_g = 0, oldtics_d = 0;
-char buffer[50] = {0};
-char data1[3] = {0};
-char data2[3] = {0};
-int done = 0;
-int begin =0;
+char buffer[25] = {0};
+char datax[4] = {0};
+char datay[4] = {0};
+int done = 0; //vairable qui permet de
+int begin =0; //variable qui permet de lancer la reception de la trame
 int compteur = 0;
-int cmd1 = 100, cmd2 = 100;
+int cmdx = 100, cmdy = 100;
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -92,7 +92,6 @@ void __attribute__((interrupt, auto_psv)) _T2Interrupt(void) {
 void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
     _U2RXIF = 0; // On baisse le FLAG
     char input = 0;
-    int u = 0;
     input = ReadUART2(); // lecture UART
 
     if (input == 'X') {// début de la trame
@@ -102,10 +101,6 @@ void __attribute__((interrupt, no_auto_psv)) _U2RXInterrupt(void) {
         compteur=0;
         begin = 0;
         done = 1;
-
-        for (u=0;u<25; u++ ) {
-            buffer[u]=0;
-        }
     }
 
     if (begin  == 1 ) {
@@ -123,14 +118,15 @@ void traitement_uart(void) {
     int u = 0;
 
     for ( u=0 ; u<3 ; u++ ) {
-        data1[u]=  buffer[u+1];
+        datax[u]=  buffer[u+1];
     }
 
     for ( u=0 ; u<3 ; u++ ) {
-        data2[u]=  buffer[u+4];
+        datay[u]=  buffer[u+5];
     }
-    cmd1 = atoi(data1);
-    cmd2 = atoi(data2);
+    cmdx = atoi(datax);
+    for (u = 0; u < 100;u++) {} // #temporisation
+    cmdy = atoi(datay);
 }
 
 void InitApp(void) {
@@ -171,11 +167,11 @@ void InitApp(void) {
     //RPINR14bits.
     _U2RXR = 5;
     // _RP5R = 5; // RP25 = U2TX (p.167)
-    ////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////0x8704////////////
 }
 
 int16_t main(void) {
-
+    int com_D, com_G;
     //char test[50]="test";
     Init_All();
     InitApp();
@@ -184,10 +180,16 @@ int16_t main(void) {
     long i = 0;
 
     while (1) {
-        motion_speed(cmd1 / 100 - 1, cmd2 / 100 - 1);
-        traitement_uart();
-        for (i = 0; i < 100; i++) {
+        //motion_speed(cmdx / 100 - 1, cmdy / 100 - 1);
+        com_D = ((cmdy-100)-(cmdx-100))/2;
+        com_G = ((cmdy-100)+(cmdx-100))/2;
+        PWM_Moteurs_gauche(com_G);
+        PWM_Moteurs_droit(com_D);
+        if (done ==1) {
+            traitement_uart();
         }
+      
+        for (i = 0; i < 100; i++) {} // #temporisation
     }
 }
 
